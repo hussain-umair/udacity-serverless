@@ -7,9 +7,9 @@ export class ApiResponseHelper{
             headers:{
                 'Access-Control-Allow-Origin':'*'
             },
-            body:{
+            body: JSON.stringify({
                 [key]:items
-            }
+            })
         }
     }
     generateEmptySuccessResponse(statusCode: number):APIGatewayProxyResult{
@@ -25,7 +25,7 @@ export class ApiResponseHelper{
         return {
             statusCode:statusCode,
             headers:{
-                'Access-Allow-Control-Origin':'*'
+                'Access-Control-Allow-Origin':'*'
             },
             body:JSON.stringify({
                 message

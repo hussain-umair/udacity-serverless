@@ -8,14 +8,12 @@ import {createLogger} from '../../utils/logger'
 
 const logger = createLogger('todos')
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const newTodo: CreateTodoRequest = JSON.parse(event.body)
-
-  // TODO: Implement creating a new TODO item
-  const authHeader = event.headers['Authorization']
-  const userId = getUserId(authHeader)
-  logger.info(`create group for user ${userId} with data ${newTodo}`)
-  const item = await new TodosAccess().createTodo(newTodo,userId)
+export const handler: APIGatewayProxyHandler = async (myEvent: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const myNewTodo: CreateTodoRequest = JSON.parse(myEvent.body)
+  const myAuthHeader = myEvent.headers['Authorization']
+  const myUserId = getUserId(myAuthHeader)
+  logger.info(`create group for user ${myUserId} with data ${myNewTodo}`)
+  const myItem = await new TodosAccess().createTodo(myNewTodo,myUserId)
   
-  return new ApiResponseHelper().generateDataSuccessResponse(201,'item',item)
+  return new ApiResponseHelper().generateDataSuccessResponse(201,'item',myItem)
 }

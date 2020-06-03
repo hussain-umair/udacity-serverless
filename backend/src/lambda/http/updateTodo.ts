@@ -7,28 +7,26 @@ import {ApiResponseHelper} from '../../helpers/apiResponseHelper'
 import {createLogger} from '../../utils/logger'
 
 const logger = createLogger('todos')
-const todosAccess = new TodosAccess()
-const apiResponseHelper = new ApiResponseHelper()
+const myTodosAccess = new TodosAccess()
+const myApiResponseHelper = new ApiResponseHelper()
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId
-  const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-  const authHeader = event.headers['Authorization']
-  const userId = getUserId(authHeader)
+export const handler: APIGatewayProxyHandler = async (myEvent: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const myTodoId = myEvent.pathParameters.todoId
+  const myUpdatedTodo: UpdateTodoRequest = JSON.parse(myEvent.body)
+  const myAuthHeader = myEvent.headers['Authorization']
+  const myUserId = getUserId(myAuthHeader)
 
-  const item = await todosAccess.getTodoById(todoId)
+  const myItem = await myTodosAccess.getTodoById(myTodoId)
   
-  if(item.Count==0){
-    logger.error(`user ${userId} requesting update for non exists todo with id ${todoId}`)
-    return apiResponseHelper.generateErrorResponse(400,'TODO not exist')
+  if(myItem.Count==0){
+    logger.error(`user ${myUserId} requesting ${myTodoId}`)
+    return myApiResponseHelper.generateErrorResponse(400,'not exist')
   }
-  if(item.Items[0].userId !== userId){
-    logger.error(`user ${userId} requesting update todo does not belong to his account with id ${todoId}`)
-    return apiResponseHelper.generateErrorResponse(400,'TODO does not belong to authorized user')
+  if(myItem.Items[0].userId !== myUserId){
+    logger.error(`user ${myUserId} requesting ${myTodoId}`)
+    return myApiResponseHelper.generateErrorResponse(400,'not authorized user')
   }
-
-  logger.info(`User ${userId} updating group ${todoId} to be ${updatedTodo}`)
-  await new TodosAccess().updateTodo(updatedTodo,todoId)
-  // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
-  return apiResponseHelper.generateEmptySuccessResponse(204)
+  logger.info(`${myUserId} updating ${myTodoId} to be ${myUpdatedTodo}`)
+  await new TodosAccess().updateTodo(myUpdatedTodo,myTodoId)
+  return myApiResponseHelper.generateEmptySuccessResponse(204)
 }

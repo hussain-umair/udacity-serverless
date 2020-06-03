@@ -5,36 +5,34 @@ import { TodosAccess } from '../../dataLayer/todosAccess'
 import {ApiResponseHelper} from '../../helpers/apiResponseHelper'
 import {createLogger} from '../../utils/logger'
 
-const todosAccess = new TodosAccess()
-const apiResponseHelper = new ApiResponseHelper()
+const myTodosAccess = new TodosAccess()
+const myApiResponseHelper = new ApiResponseHelper()
 const logger = createLogger('todos')
 
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId
-
-  // TODO: Remove a TODO item by id
-  if(!todoId){
-    logger.error('invalid delete attempt without todo id')
-    return apiResponseHelper.generateErrorResponse(400,'invalid parameters')
+export const handler: APIGatewayProxyHandler = async (myEvent: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const myTodoId = myEvent.pathParameters.todoId
+  if(!myTodoId){
+    logger.error('invalid attempt')
+    return myApiResponseHelper.generateErrorResponse(400,'invalid')
   }
 
-  const authHeader = event.headers['Authorization']
-  const userId = getUserId(authHeader)
+  const myAuthHeader = myEvent.headers['Authorization']
+  const myUserId = getUserId(myAuthHeader)
 
-  const item = await todosAccess.getTodoById(todoId)
-  if(item.Count == 0){
-    logger.error(`user ${userId} requesting delete for non exists todo with id ${todoId}`)
-    return apiResponseHelper.generateErrorResponse(400,'TODO not exists')
+  const myItem = await myTodosAccess.getTodoById(myTodoId)
+  if(myItem.Count == 0){
+    logger.error(`user ${myUserId} delete non exists todo ${myTodoId}`)
+    return myApiResponseHelper.generateErrorResponse(400,'not exists')
   }
 
-  if(item.Items[0].userId !== userId){
-    logger.error(`user ${userId} requesting delete todo does not belong to his account with id ${todoId}`)
-    return apiResponseHelper.generateErrorResponse(400,'TODO does not belong to authorized user')
+  if(myItem.Items[0].userId !== myUserId){
+    logger.error(`user ${myUserId} requesting not ${myTodoId}`)
+    return myApiResponseHelper.generateErrorResponse(400,'not authorized user')
   }
 
-  logger.info(`User ${userId} deleting todo ${todoId}`)
-  await todosAccess.deleteTodoById(todoId)
+  logger.info(`User ${myUserId} deleting ${myTodoId}`)
+  await myTodosAccess.deleteTodoById(myTodoId)
 
-  return apiResponseHelper.generateEmptySuccessResponse(204)
+  return myApiResponseHelper.generateEmptySuccessResponse(204)
 }

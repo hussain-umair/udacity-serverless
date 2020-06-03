@@ -1,89 +1,81 @@
+const uuid = require('uuid/v4')
+import * as AWS from 'aws-sdk'
+import * as XRayAWS from 'aws-xray-sdk'
 import { TodoItem } from "../models/todoItem";
 import { CreateTodoRequest } from "../requests/createTodoRequest";
 import { UpdateTodoRequest } from "../requests/updateTodoRequest";
-const uuid = require('uuid/v4')
-import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
 
 
 
 export class TodosAccess{
     constructor(
-        private readonly XAWS = AWSXRay.captureAWS(AWS),
-        private readonly docClient: AWS.DynamoDB.DocumentClient = new XAWS.DynamoDB.DocumentClient(),
-        private readonly todosTable = process.env.TODO_TABLE,
-        private readonly userIdIndex = process.env.USER_ID_INDEX
+        myTodosTable = process.env.TODO_TABLE,
+        myUserIdIndex = process.env.USER_ID_INDEX,
+        XAWS = XRayAWS.captureAWS(AWS),
+        docClient: AWS.DynamoDB.DocumentClient = new XAWS.DynamoDB.DocumentClient()
     )
         {}
-
-    async getUserTodos(userId: string): Promise<TodoItem[]>{
-        const result = await this.docClient.query({
-            TableName: this.todosTable,
-            IndexName: this.userIdIndex,
-            KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues:{
-                ':userId':userId
+    async deleteTodoById(myTodoId: string){
+        const myParam = {
+            TableName: this.myTodosTable,
+            Key:{
+                "todoId":myTodoId
             }
-        }).promise()
-        return result.Items as TodoItem[]
+        }
+        await this.docClient.delete(myParam).promise()
     }
-
-    async createTodo(request: CreateTodoRequest,userId: string): Promise<TodoItem>{
-        const newId = uuid()
-        const item = new TodoItem()
-        item.userId= userId
-        item.todoId= newId
-        item.createdAt= new Date().toISOString()
-        item.name= request.name
-        item.dueDate= request.dueDate
-        item.done= false
-  
-        await this.docClient.put({
-            TableName: this.todosTable,
-            Item: item
-        }).promise()
-
-        return item
-    }
-
-
-    async getTodoById(id: string): Promise<AWS.DynamoDB.QueryOutput>{
-        return await this.docClient.query({
-            TableName: this.todosTable,
-            KeyConditionExpression: 'todoId = :todoId',
-            ExpressionAttributeValues:{
-                ':todoId': id
-            }
-        }).promise()
-    }
-
-    async updateTodo(updatedTodo:UpdateTodoRequest,todoId:string){
+    async updateTodo(myUpdatedTodo:UpdateTodoRequest,todoId:string){
         await this.docClient.update({
-            TableName: this.todosTable,
+            TableName: this.myTodosTable,
             Key:{
                 'todoId':todoId
             },
             UpdateExpression: 'set #namefield = :n, dueDate = :d, done = :done',
             ExpressionAttributeValues: {
-                ':n' : updatedTodo.name,
-                ':d' : updatedTodo.dueDate,
-                ':done' : updatedTodo.done
+                ':n' : myUpdatedTodo.name,
+                ':d' : myUpdatedTodo.dueDate,
+                ':done' : myUpdatedTodo.done
             },
             ExpressionAttributeNames:{
                 "#namefield": "name"
-              }
-          }).promise()
-    }
-
-    async deleteTodoById(todoId: string){
-        const param = {
-            TableName: this.todosTable,
-            Key:{
-                "todoId":todoId
             }
-        }
-      
-         await this.docClient.delete(param).promise()
+        }).promise()
     }
-    
+    async createTodo(request: CreateTodoRequest,userId: string): Promise<TodoItem>{
+        const myNewId = uuid()
+        const myItem = new TodoItem()
+        myItem.userId= userId
+        myItem.todoId= myNewId
+        myItem.createdAt= new Date().toISOString()
+        myItem.name= request.name
+        myItem.dueDate= request.dueDate
+        myItem.done= false
+        
+        await this.docClient.put({
+            TableName: this.myTodosTable,
+            Item: myItem
+        }).promise()
+        
+        return myItem
+    }
+    async getTodoById(mySendId: string): Promise<AWS.DynamoDB.QueryOutput>{
+        return await this.docClient.query({
+            TableName: this.myTodosTable,
+            KeyConditionExpression: 'todoId = :todoId',
+            ExpressionAttributeValues:{
+                ':todoId': mySendId
+            }
+        }).promise()
+    }
+    async getUserTodos(userId: string): Promise<TodoItem[]>{
+        const myResult = await this.docClient.query({
+            TableName: this.myTodosTable,
+            IndexName: this.myUserIdIndex,
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues:{
+                ':userId':userId
+            }
+        }).promise()
+        return myResult.Items as TodoItem[]
+    }
 }

@@ -8,7 +8,7 @@ import { JwtPayload } from '../../auth/JwtPayload'
 
 const logger = createLogger('auth')
 
-const jwksUrl = 'https://dev-gw-du3-a.auth0.com/pem'
+const jwksUrl = 'https://dev-gw-du3-a.auth0.com/.well-known/jwks.json'
 
 export const handler = async (
   event: CustomAuthorizerEvent

@@ -7,7 +7,7 @@ import { JwtPayload } from './JwtPayload'
  * @param jwtToken JWT token to parse
  * @returns a user id from the JWT token
  */
-export function parseUserId(myJwtToken: string): string {
-  const myDecodedJwt = decode(myJwtToken) as JwtPayload
-  return myDecodedJwt.sub
+export function parseUserId(JwtToken: string): string {
+  const DecodedJwt = decode(JwtToken) as JwtPayload
+  return DecodedJwt.sub
 }

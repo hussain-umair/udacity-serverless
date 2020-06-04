@@ -1,13 +1,12 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
-import {getUserId} from '../../helpers/authHelper'
-import {TodosAccess} from '../../dataLayer/todosAccess'
-import {S3Helper} from '../../helpers/s3Helper'
-import {ApiResponseHelper} from '../../helpers/apiResponseHelper'
+import {getUserId} from '../../services/authHelper'
+import {TodosAccess} from '../../dataLayer/TodoDataLayer'
+import {S3Helper} from '../../services/s3Helper'
+import {DataSuccessResponse} from '../../services/apiResponses/DataSuccessResponse'
 import {createLogger} from '../../utils/logger'
 
 const myS3Helper = new S3Helper()
-const myApiResponseHelper =  new ApiResponseHelper()
 const logger = createLogger('todos')
 
 export const handler: APIGatewayProxyHandler = async (myEvent: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -20,5 +19,5 @@ export const handler: APIGatewayProxyHandler = async (myEvent: APIGatewayProxyEv
     myRecord.attachmentUrl = await myS3Helper.getTodoAttachmentUrl(myRecord.todoId)
   }
 
-  return myApiResponseHelper.generateDataSuccessResponse(200,'items',myResult)
+  return DataSuccessResponse(200,'items',myResult)
 }

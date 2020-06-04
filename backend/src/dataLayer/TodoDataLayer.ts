@@ -1,18 +1,18 @@
 const uuid = require('uuid/v4')
 import * as AWS from 'aws-sdk'
 import * as XRayAWS from 'aws-xray-sdk'
-import { TodoItem } from "../models/todoItem";
-import { CreateTodoRequest } from "../requests/createTodoRequest";
-import { UpdateTodoRequest } from "../requests/updateTodoRequest";
+import { TodoItem } from "../models/TodoItem";
+import { CreateTodoRequest } from "../requests/CreateTodoRequest";
+import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 
 
 
 export class TodosAccess{
     constructor(
-        myTodosTable = process.env.TODO_TABLE,
-        myUserIdIndex = process.env.USER_ID_INDEX,
-        XAWS = XRayAWS.captureAWS(AWS),
-        docClient: AWS.DynamoDB.DocumentClient = new XAWS.DynamoDB.DocumentClient()
+        private readonly myTodosTable = process.env.SERVERLESS_TODO_TABLE,
+        private readonly myUserIdIndex = process.env.USER_ID_INDEX,
+        private readonly XAWS = XRayAWS.captureAWS(AWS),
+        private readonly docClient: AWS.DynamoDB.DocumentClient = new XAWS.DynamoDB.DocumentClient()
     )
         {}
     async deleteTodoById(myTodoId: string){

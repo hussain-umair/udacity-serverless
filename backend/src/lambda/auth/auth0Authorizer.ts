@@ -54,20 +54,8 @@ async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const myToken = getToken(authHeader)
   const myJwt: Jwt = decode(myToken, { complete: true }) as Jwt
 
-  if(!myJwt){
-    throw new Error('invalid')
-  }
-  try{
-    const response = await Axios.get(jwksUrl);
-    console.log(response)
-    var myVerifiedToken = verify(myToken, response.data,{algorithms:['RS256']})
-
-    console.log('verified', myVerifiedToken)
-    return myVerifiedToken as JwtPayload
-  }catch(error){
-    console.error(error)
-    return undefined
-  }
+  const result = await Axios.get(jwksUrl);
+  return verify(myToken, result.data,{algorithms:['RS256']}) as JwtPayload
 }
 
 function getToken(myAuthHeader: string): string {
